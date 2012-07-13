@@ -16,12 +16,16 @@ struct CommandVisitor : private boost::static_visitor<>
   template<CommandType t, typename... Params>
   void operator()(const Command<t, void, Params...>& cmd)
   {
+    //TODO: use std::enable_if to invoke a dummy method if
+    // the engine does not provide an appropiate implementation
     engine_.handle (cmd);
   }
 
   template<CommandType t, typename ReturnType, typename... Params>
   void operator()(const Command<t, void, Params...>& cmd)
   {
+    //TODO: use std::enable_if to invoke a dummy method if
+    // the engine does not provide an appropiate implementation
     ReturnType result = engine_.handle (cmd);
     codec_.writeResponse (result);
   }

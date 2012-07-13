@@ -13,6 +13,9 @@
 namespace gtp 
 {
 
+////////////////////////////////////////////////////////////////////////////////
+// Enumeration of all types of GTP commands in the standard.
+//
 enum class CommandType
 {
   protocol_version,       name,                   version,
@@ -24,6 +27,10 @@ enum class CommandType
   final_status_list
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// Structs for holding a command's metainfo in a typesafe way.
+// (see gtp::Command in gtplib/types.hpp).
+//
 using CmdProtocolVersion = Command<CommandType::protocol_version, int>;
 using CmdName = Command<CommandType::name, std::string>;
 using CmdVersion = Command<CommandType::version, std::string>;
@@ -43,6 +50,10 @@ using CmdTimeLeft = Command<CommandType::time_left, void, Color, Color, int, int
 using CmdFinalScore = Command<CommandType::final_score, void, Score>;
 using CmdFinalStatusList = Command<CommandType::final_status_list, std::list<Vertex>, StoneStatus>;
 
+
+/////////////////////////////////////////////////////////////////////
+// boost::variant that can contain all types of GTP commands
+//
 using WhateverCommand = boost::variant<
   CmdProtocolVersion, 
   CmdName, 

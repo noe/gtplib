@@ -11,20 +11,28 @@
 namespace gtp
 {
 
+///////////////////////////////////////////////////////////////////////////////
+// Class to read GTP commands from an input stream and to write
+// responses to them in an output stream.
+//
 class ProtocolCodec
 {
   public:
 
+    // Constructor.
     ProtocolCodec (std::istream& input, std::ostream& output);
 
+    // Reads a command from the input provided in the constructor.
     WhateverCommand readCommand ();
 
+    // Writes a response to the output provided in the constructor.
     template<typename T> void writeResponse (const T& t);
 
   private:
 
-    std::istream& input_;
-    std::ostream& output_;
+    std::istream& input_;  // input from where the commands are parsed.
+
+    std::ostream& output_;  // output to where responses are written.
 };
 
 }
