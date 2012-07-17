@@ -7,10 +7,32 @@
 
 #include <iosfwd>
 #include "gtplib/gtpcommands.hpp"
-#include "gtplib/detail/gtpcommands_detail.hpp"
 
 namespace gtp
 {
+
+/////////////////////////////////////////////////////////////////////
+// boost::variant that can contain all types of GTP commands
+//
+using WhateverCommand = boost::variant<
+  CmdProtocolVersion, 
+  CmdName, 
+  CmdVersion, 
+  CmdKnownCommand, 
+  CmdListCommands, 
+  CmdQuit, 
+  CmdBoardSize, 
+  CmdClearBoard, 
+  CmdKomi, 
+  CmdGenmove, 
+  CmdPlay, 
+  CmdFixedHandicap, 
+  CmdPlaceFreeHandicap, 
+  CmdSetFreeHandicap, 
+  CmdTimeSettings, 
+  CmdTimeLeft, 
+  CmdFinalScore, 
+  CmdFinalStatusList>;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Class to read GTP commands from an input stream and to write

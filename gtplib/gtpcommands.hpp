@@ -50,7 +50,5 @@ using CmdTimeLeft = Command<CommandType::time_left, void, Color, Color, int, int
 using CmdFinalScore = Command<CommandType::final_score, void, Score>;
 using CmdFinalStatusList = Command<CommandType::final_status_list, std::list<Vertex>, StoneStatus>;
 
-
-
 }
 #endif
