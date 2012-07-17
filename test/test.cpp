@@ -1,5 +1,5 @@
 #include"gtplib/gtpcodec.hpp"
-#include "gtpgoroengine.hpp"
+#include "dummyengine.hpp"
 
 #include <iostream>
 
@@ -10,8 +10,8 @@ int main(void)
 //  std::list<gtp::Vertex> l; l.push_back(v); l.push_back(v);
 //  codec.writeResponse(l);
 
-  goro::GtpGoroEngine engine;
-  gtp::EngineFrontend<goro::GtpGoroEngine> frontend (std::cin, std::cout, engine);
+  DummyEngine engine;
+  gtp::EngineFrontend<DummyEngine> frontend (std::cin, std::cout, engine);
    
   return 0;
 }
