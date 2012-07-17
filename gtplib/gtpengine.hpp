@@ -8,7 +8,7 @@
 #include <istream>
 #include <ostream>
 
-#include "gtplib/gtpcodec.hpp"
+#include "gtplib/detail/gtpcodec.hpp"
 
 namespace gtp
 {
@@ -47,5 +47,5 @@ class EngineFrontend
 
 }
 
-#include "gtplib/detail/gtpengine_detail.hpp"
+#include "gtplib/detail/gtpengine_impl.hpp"
 #endif

@@ -51,28 +51,6 @@ using CmdFinalScore = Command<CommandType::final_score, void, Score>;
 using CmdFinalStatusList = Command<CommandType::final_status_list, std::list<Vertex>, StoneStatus>;
 
 
-/////////////////////////////////////////////////////////////////////
-// boost::variant that can contain all types of GTP commands
-//
-using WhateverCommand = boost::variant<
-  CmdProtocolVersion, 
-  CmdName, 
-  CmdVersion, 
-  CmdKnownCommand, 
-  CmdListCommands, 
-  CmdQuit, 
-  CmdBoardSize, 
-  CmdClearBoard, 
-  CmdKomi, 
-  CmdGenmove, 
-  CmdPlay, 
-  CmdFixedHandicap, 
-  CmdPlaceFreeHandicap, 
-  CmdSetFreeHandicap, 
-  CmdTimeSettings, 
-  CmdTimeLeft, 
-  CmdFinalScore, 
-  CmdFinalStatusList>; 
 
 }
 #endif

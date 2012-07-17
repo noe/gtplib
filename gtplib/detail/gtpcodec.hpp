@@ -7,6 +7,7 @@
 
 #include <iosfwd>
 #include "gtplib/gtpcommands.hpp"
+#include "gtplib/detail/gtpcommands_detail.hpp"
 
 namespace gtp
 {
@@ -37,6 +38,6 @@ class ProtocolCodec
 
 }
 
-#include "gtplib/detail/gtpcodec_detail.hpp"
+#include "gtplib/detail/gtpcodec_impl.hpp"
 
 #endif
