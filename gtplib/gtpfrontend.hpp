@@ -2,12 +2,13 @@
 // Distributed under New BSD License.
 // (see accompanying file COPYING)
 
-#ifndef __gtp_engine_header_seen__
-#define __gtp_engine_header_seen__
+#ifndef __gtp_frontend_header_seen__
+#define __gtp_frontend_header_seen__
 
 #include <istream>
 #include <ostream>
 
+#include "gtplib/gtpengine.hpp"
 #include "gtplib/detail/gtpcodec.hpp"
 
 namespace gtp
@@ -20,7 +21,7 @@ namespace gtp
 //  the command's parameters and returning the command's return value. Check
 //  header file gtplib/gtpcommands.hpp for the full list of commands.
 //
-template<typename Engine>
+template<typename Engine = gtp::IEngine>
 class EngineFrontend
 {
   public:
