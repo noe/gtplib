@@ -5,9 +5,6 @@
 #ifndef __gtp_types_header_seen__
 #define __gtp_types_header_seen__
 
-#include <list>
-#include <string>
-
 namespace gtp 
 {
 

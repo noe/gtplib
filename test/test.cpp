@@ -1,4 +1,4 @@
-#include"gtplib/gtpengine.hpp"
+#include"gtplib/gtpfrontend.hpp"
 #include "dummyengine.hpp"
 
 #include <iostream>

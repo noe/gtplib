@@ -13,13 +13,13 @@
 namespace gtp
 {
 
-////////////////////////////////////////////////////////////////////////////
-//  Class to assemble the parsing of the input with the actual handling
-//  of the GTP commands. It is templatized with Engine, a class that must
-//  provide a method called 'handle' for every type of command, receiving
-//  as arguments the command's parameters and returning the command's
-//  return value. Check gtplib/gtpcommands.hpp for the full list of
-//  commands.
+///////////////////////////////////////////////////////////////////////////////
+//  Class to assemble the parsing of the input with the actual handling of the
+//  GTP commands. It is templatized with Engine, a class that must provide a
+//  method called 'handle' for every type of command, receiving as arguments
+//  the command's parameters and returning the command's return value. Check
+//  header file gtplib/gtpcommands.hpp for the full list of commands.
+//
 template<typename Engine>
 class EngineFrontend
 {

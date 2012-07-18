@@ -1,7 +1,7 @@
 #ifndef __gtp_goro_engine_header_seen__
 #define __gtp_goro_engine_header_seen__
 
-#include "gtplib/gtpengine.hpp"
+#include "gtplib/gtpcommands.hpp"
 
 struct DummyEngine
 {

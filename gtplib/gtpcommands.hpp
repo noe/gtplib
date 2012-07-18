@@ -5,6 +5,8 @@
 #ifndef __gtp_commands_header_seen__
 #define __gtp_commands_header_seen__
 
+#include <list>
+#include <string>
 #include <tuple>
 #include <boost/variant.hpp>
 
