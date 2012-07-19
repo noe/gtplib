@@ -6,32 +6,51 @@
 #define __gtp_engine_detail_header_seen__
 
 #include "gtplib/gtpcommands.hpp"
+#include <boost/variant.hpp>
 
 namespace gtp
 {
 
-template<typename Engine>
-struct CommandVisitor : private boost::static_visitor<>
+template<typename ReturnType>
+struct Helper
 {
-  template<CommandType t, typename... Params>
-  void operator()(const Command<t, void, Params...>& cmd)
+  template<typename Engine, typename Cmd>
+  void handle (Engine& engine, ProtocolCodec& codec, const Cmd& cmd)
   {
-    //TODO: use std::enable_if to invoke a dummy method if
-    // the engine does not provide an appropiate implementation
-    engine_.handle (cmd);
+    ReturnType result = engine.handle (cmd);
+    codec.writeResponse (result);
   }
+};
 
-  template<CommandType t, typename ReturnType, typename... Params>
-  void operator()(const Command<t, void, Params...>& cmd)
+template<>
+struct Helper <void>
+{
+  template<typename Engine, typename Cmd>
+  void handle(Engine& engine, ProtocolCodec& codec, const Cmd& cmd)
   {
-    //TODO: use std::enable_if to invoke a dummy method if
-    // the engine does not provide an appropiate implementation
-    ReturnType result = engine_.handle (cmd);
-    codec_.writeResponse (result);
+    engine.handle (cmd);
   }
+};
 
-  Engine& engine_;
-  ProtocolCodec& codec_;
+
+template<typename Engine>
+class CommandVisitor : public boost::static_visitor<void>
+{
+  public:
+
+    CommandVisitor (Engine& engine, ProtocolCodec& codec)
+      : engine_ (engine), codec_ (codec) { /* do nothing */ }
+
+    template<CommandType t, typename ReturnType, typename... Params>
+    void operator()(const Command<t, ReturnType, Params...>& cmd) const
+    {
+      Helper<ReturnType> helper;
+      helper.handle (engine_, codec_, cmd);
+    }
+
+  private:
+    Engine& engine_;
+    ProtocolCodec& codec_;
 };
 
 template<typename Engine>
@@ -47,15 +66,20 @@ EngineFrontend<Engine>::EngineFrontend (
 template<typename Engine>
 void EngineFrontend<Engine>::start ()
 {
-  CommandVisitor<Engine> visitor = {engine_, codec_};
+  CommandVisitor<Engine> visitor (engine_, codec_);
 
   while (!stop_)
   {
-    std::unique_ptr<WhateverCommand> cmd = codec_.readCommand ();
-
-    if (!cmd) break;
-
-    boost::apply_visitor (visitor, *cmd);
+    try
+    {
+      WhateverCommand cmd = codec_.readCommand ();
+      boost::apply_visitor (visitor, cmd);
+    }
+    catch (...) //FIXME
+    {
+      stop_ = true;
+      continue;
+    }
   }
 }
     

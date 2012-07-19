@@ -166,24 +166,32 @@ inline WhateverCommand commandFromLine (const std::string& line)
 // Writes anything to the given output stream by means of its operator<<
 // (so T needs to have an operator<< defined).
 //
-template<typename T> inline void writeResponse (std::ostream& output, const T& t)
+template<typename T>
+struct WriteHelper
 {
-  output << t;
-}
+  void writeResponse (std::ostream& output, const T& t)
+  {
+    output << t;
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dumps a list of things to an output stream.
 //
-template<typename T> inline void writeResponse (
-                                     std::ostream& output,
-                                     const std::list<T>& listOfElements)
+template<typename T>
+struct WriteHelper<std::list<T>>
 {
-  for (const T& t : listOfElements)
+  void writeResponse ( std::ostream& output, const std::list<T>& listOfElements)
   {
-    writeResponse(t);
-    output << " ";
+    WriteHelper<T> helper;
+
+    for (const T& t : listOfElements)
+    {
+      helper.writeResponse(output, t);
+      output << " ";
+    }
   }
-}
+}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Constructor
@@ -210,9 +218,9 @@ WhateverCommand ProtocolCodec::readCommand ()
   {
     keepReading = false;
 
-    bool failed = std::getline(input_, line).fail();
+    bool failed = !std::getline(input_, line);
 
-    if (failed) return nullCmd;
+    if (failed) throw "end"; //FIXME
 
     if (line.empty())
     {
@@ -239,7 +247,8 @@ WhateverCommand ProtocolCodec::readCommand ()
 //
 template<typename T> void ProtocolCodec::writeResponse (const T& t)
 {
-  writeResponse (output_, t);
+  WriteHelper<T> helper;
+  helper.writeResponse (output_, t);
   output_ << std::endl;
 }
 
