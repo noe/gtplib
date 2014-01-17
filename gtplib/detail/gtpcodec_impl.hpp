@@ -129,6 +129,8 @@ struct ParseAux
   {
     typename std::tuple_element<std::tuple_size<Tuple>::value - index, Tuple>::type t;
     t << args;
+    // TODO: control errors
+
     std::get<index>(tuple) = std::move(t);
 
     // keep parsing

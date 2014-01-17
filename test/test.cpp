@@ -39,18 +39,18 @@ void testTypes (const std::string& input, std::vector<gtp::CommandType>& expecte
   }
 }
 
-int main(void)
+TEST(whatever1, whatever2)
 {
   std::cout << "Hi there!" << std::endl;
 
   std::vector<gtp::CommandType> cmds {
      gtp::CommandType::quit,
      gtp::CommandType::name,
-     gtp::CommandType::quit};
+     gtp::CommandType::quit,
+     gtp::CommandType::fixed_handicap,
+     };
 
-  testTypes ("quit\nname\nquit\n", cmds);
-
-  return 0;
+  testTypes ("quit\nname\nquit\nfixed_handicap 4\n", cmds);
 }
 
 
