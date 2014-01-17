@@ -25,6 +25,7 @@ using WhateverCommand = boost::variant<
   CmdClearBoard, 
   CmdKomi, 
   CmdGenmove, 
+  CmdUndo,
   CmdPlay, 
   CmdFixedHandicap, 
   CmdPlaceFreeHandicap, 

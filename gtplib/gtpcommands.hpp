@@ -43,6 +43,7 @@ using CmdBoardSize = Command<CommandType::boardsize, void, int>;
 using CmdClearBoard = Command<CommandType::clear_board, void>;
 using CmdKomi = Command<CommandType::komi, void, int>;
 using CmdGenmove = Command<CommandType::genmove, Vertex, Color>;
+using CmdUndo = Command<CommandType::undo, void>;
 using CmdPlay = Command<CommandType::play, void, Move>;
 using CmdFixedHandicap = Command<CommandType::fixed_handicap, std::list<Vertex>, int>;
 using CmdPlaceFreeHandicap = Command<CommandType::place_free_handicap, std::list<Vertex>, int>;

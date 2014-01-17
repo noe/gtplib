@@ -43,7 +43,7 @@ class EngineFrontend
 
     Engine& engine_; // Class that actually handles the GTP commands
 
-    bool stop_;  // wheather or not to stop (TODO: use std::atomic)
+    bool stop_;  // whether or not to stop (TODO: use std::atomic)
 };
 
 }

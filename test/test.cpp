@@ -1,3 +1,5 @@
+#include <gtest/gtest.h>
+
 #include "gtplib/gtpfrontend.hpp"
 #include "dummyengine.hpp"
 
@@ -14,16 +16,26 @@ void testTypes (const std::string& input, std::vector<gtp::CommandType>& expecte
   gtp::EngineFrontend<DummyEngine> frontend (inputBuffer, outputBuffer, engine);
   frontend.start();
 
+  size_t expectedCommandCount = expected.size();
+  size_t parsedCommandCount = engine.commands_.size();
+  size_t min = std::min(expectedCommandCount, parsedCommandCount);
+
+  for (size_t k = 0; k < min; ++k)
+  {
+    EXPECT_EQ(engine.commands_[k], expected[k]);
+  }
+
+  EXPECT_EQ(expectedCommandCount, parsedCommandCount);
+
   //TODO : replace with cppunit or something alike
   if (expected != engine.commands_)
   {
     std::cout << "noooo" << std::endl;
-    for (auto c : engine.commands_) std::cout << int(c) << " ";
     std::cout << std::endl; 
   }
   else
   {
-    std::cout << "fuck yead" << std::endl;
+    std::cout << "fuck yeah" << std::endl;
   }
 }
 

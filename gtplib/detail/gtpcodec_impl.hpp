@@ -54,12 +54,10 @@ inline std::map<std::string, CommandType> mapStringToCommand ()
 inline std::map<CommandType, std::string> mapCommandToString ()
 {
   std::map<CommandType, std::string> result;
-
   for (auto entry : mapStringToCommand())
   {
     result.insert(std::make_pair(entry.second, entry.first));
   }
-
   return result;
 }
 
@@ -90,18 +88,11 @@ inline std::ostream& operator<< (std::ostream& out, const Move& move)
 inline std::ostream& operator<< (std::ostream& out, const Score& score)
 {
   bool draw = score.advantage == 0;
-  if (draw)
-  {
-    out << "0" << std::endl;
-  }
-  else if (score.winner == Color::white)
-  {
-    out << "W+" << score.advantage << std::endl;
-  }
-  else
-  {
-    out << "B+" << score.advantage << std::endl;
-  }
+
+  if (draw) out << "0" << std::endl;
+  else if (score.winner == Color::white) out << "W+" << score.advantage << std::endl;
+  else out << "B+" << score.advantage << std::endl;
+
   return out;
 }
 
@@ -110,17 +101,12 @@ inline std::ostream& operator<< (std::ostream& out, const Score& score)
 //
 inline std::ostream& operator<< (std::ostream& out, CommandType cmd)
 {
-  static std::map<CommandType, std::string> command2stringMap (mapCommandToString());
-
-  std::map<CommandType, std::string>::iterator it = command2stringMap.find (cmd);
-
+  static auto command2stringMap (mapCommandToString());
+  auto it = command2stringMap.find (cmd);
   assert (it != command2stringMap.end()); // means the map is incomplete!
-
   out << it->second;
-
   return out;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Finds out the matching gtp::CommandType for the given stringified command.
@@ -128,16 +114,59 @@ inline std::ostream& operator<< (std::ostream& out, CommandType cmd)
 inline CommandType string2command (const std::string& command)
                             throw (std::exception)
 {
-  static std::map<std::string, CommandType> string2commandMap (mapStringToCommand());
- 
-  std::map<std::string, CommandType>::iterator it = string2commandMap.find (command);
-
-  if (it == string2commandMap.end())
-  {
-    throw std::exception();
-  }
-
+  static auto string2commandMap (mapStringToCommand());
+  auto it = string2commandMap.find (command);
+  if (it == string2commandMap.end()) throw std::exception();
   return it->second;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+template<size_t index>
+struct ParseAux
+{
+  template<typename Tuple>
+  void operator()(std::istream& args, Tuple tuple)
+  {
+    typename std::tuple_element<std::tuple_size<Tuple>::value - index, Tuple>::type t;
+    t << args;
+    std::get<index>(tuple) = std::move(t);
+
+    // keep parsing
+    ParseAux<index - 1> aux;
+    aux(args, tuple);
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+template<>
+struct ParseAux<0>
+{
+  template<typename Tuple>
+  void operator()(std::istream& args, Tuple tuple)
+  {
+    // do nothing
+  }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+template<typename... Params>
+std::tuple<Params...> parseParams(std::istream& args)
+{
+  typedef typename std::tuple<Params...> Tuple;
+
+  Tuple result;
+  ParseAux<std::tuple_size<Tuple>::value> parser;
+  parser(args, result);
+  return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+template<typename Command>
+WhateverCommand processCmd(std::istream& args)
+{
+  Command cmd;
+  return WhateverCommand (cmd);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -146,17 +175,56 @@ inline CommandType string2command (const std::string& command)
 inline WhateverCommand commandFromLine (const std::string& line)
                                  throw (std::exception)
 {
-  boost::tokenizer<> t (line);
-  std::vector<std::string> tokens (t.begin(), t.end());
+  std::stringstream buffer(line);
 
-  if (tokens.empty())
-  {
-    throw std::exception();
-  }
+  std::string command;
+  buffer >> command;
  
-  CommandType type = string2command (tokens[0]);
+  CommandType type = string2command (command);
 
-  //TODO: create the command from the strings
+  switch (type)
+  {
+    case CommandType::protocol_version:
+      return processCmd<CmdProtocolVersion>(buffer);
+    case CommandType::name:
+      return processCmd<CmdName>(buffer);
+    case CommandType::version:
+      return processCmd<CmdVersion>(buffer);
+    case CommandType::known_command:
+      return processCmd<CmdKnownCommand>(buffer);
+    case CommandType::list_commands:
+      return processCmd<CmdListCommands>(buffer);
+    case CommandType::quit:
+      return processCmd<CmdQuit>(buffer);
+    case CommandType::boardsize:
+      return processCmd<CmdBoardSize>(buffer);
+    case CommandType::clear_board:
+      return processCmd<CmdClearBoard>(buffer);
+    case CommandType::komi:
+      return processCmd<CmdKomi>(buffer);
+    case CommandType::play:
+      return processCmd<CmdPlay>(buffer);
+    case CommandType::genmove:
+      return processCmd<CmdGenmove>(buffer);
+    case CommandType::undo:
+      return processCmd<CmdUndo>(buffer);
+    case CommandType::fixed_handicap:
+      return processCmd<CmdFixedHandicap>(buffer);
+    case CommandType::place_free_handicap:
+      return processCmd<CmdPlaceFreeHandicap>(buffer);
+    case CommandType::set_free_handicap:
+      return processCmd<CmdSetFreeHandicap>(buffer);
+    case CommandType::time_settings:
+      return processCmd<CmdTimeSettings>(buffer);
+    case CommandType::time_left:
+      return processCmd<CmdTimeLeft>(buffer);
+    case CommandType::final_score:
+      return processCmd<CmdFinalScore>(buffer);
+    case CommandType::final_status_list:
+      return processCmd<CmdFinalStatusList>(buffer);
+
+    default: (assert (false)); // this should never happen
+  }
  
   CmdQuit quit;
   return WhateverCommand (quit);
