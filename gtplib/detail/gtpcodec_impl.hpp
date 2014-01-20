@@ -12,7 +12,7 @@
 #include <ostream>
 #include <memory>
 #include <stdexcept>
-#include <boost/tokenizer.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace gtp
 {
@@ -67,10 +67,42 @@ inline std::map<CommandType, std::string> mapCommandToString ()
 //
 inline std::ostream& operator<< (std::ostream& out, const Vertex& v)
 {
-  char column = v.y;
+  unsigned column = v.y;
   char row = 'A' + v.x;
   out << row << column << std::endl;
   return out;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Parses a gtp::Vertex from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, Vertex& vertex)
+{
+  std::string v;
+  in >> v;
+  boost::to_upper(v);
+  if (v.size() < 2 || v.size() > 3)
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+
+  vertex.x = v.at(0) - 'A';
+  vertex.y = atoi(&v.c_str()[1]);
+
+  return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Parses a gtp::Color from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, Color& color)
+{
+  char colorChar;
+  in >> colorChar;
+  if (in.fail()) return in;
+  color = colorChar == 'W' || colorChar == 'w'? Color::white : Color::black;
+  return in;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,25 +120,19 @@ inline std::ostream& operator<< (std::ostream& out, const Move& move)
 //
 inline std::istream& operator>>(std::istream& in, Move& move)
 {
-  //TODO
+  in >> move.color;
+  if (!in.fail()) in >> move.vertex;
   return in;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Parses a gtp::Color from the given input stream
-//
-inline std::istream& operator>>(std::istream& in, Color& color)
-{
-  //TODO
-  return in;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parses a std::list<gtp::Vertex> from the given input stream
 //
 inline std::istream& operator>>(std::istream& in, std::list<Vertex>& list)
 {
-  //TODO
+  Vertex vertex;
+  while(in >> vertex) list.push_back(vertex);
   return in;
 }
 
@@ -115,7 +141,20 @@ inline std::istream& operator>>(std::istream& in, std::list<Vertex>& list)
 //
 inline std::istream& operator>>(std::istream& in, Score& score)
 {
-  //TODO
+  std::string s;
+  in >> s;
+  if (s == "0")
+  {
+    score.winner = Color::white;
+    score.advantage = 0;
+  }
+  else
+  {
+    std::stringstream buffer (s);
+    buffer >> score.winner;
+    if (!buffer.fail()) buffer >> score.advantage;
+  }
+
   return in;
 }
 
@@ -124,7 +163,15 @@ inline std::istream& operator>>(std::istream& in, Score& score)
 //
 inline std::istream& operator>>(std::istream& in, StoneStatus& stoneStatus)
 {
-  //TODO
+  std::string s;
+  in >> s;
+  boost::to_upper(s);
+  
+  if (s == "DEAD") stoneStatus = StoneStatus::dead;
+  else if (s == "ALIVE") stoneStatus = StoneStatus::alive;
+  else if (s == "SEKI") stoneStatus = StoneStatus::seki;
+  else in.setstate(std::ios::failbit);
+
   return in;
 }
 
@@ -176,7 +223,8 @@ struct ParseAux
     enum aux { TUPLE_INDEX = std::tuple_size<Tuple>::value - index};
     typename std::tuple_element<TUPLE_INDEX, Tuple>::type t;
     args >> t;
-    // TODO: control errors
+
+    if (args.fail()) return;
 
     std::get<TUPLE_INDEX>(tuple) = std::move(t);
 
