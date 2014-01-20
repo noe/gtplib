@@ -36,13 +36,25 @@ std::map<string, WhateverCommand> buildPairs()
   return result;
 }
 
-void testTypes (const std::string& input, std::vector<gtp::CommandType>& expected)
+TEST(DirectConversion, InARow)
 {
-  std::stringstream inputBuffer(input);
-  std::stringstream outputBuffer;
+  std::map<string, WhateverCommand> pairs = buildPairs();
+
+  std::vector<WhateverCommand> expected;
+  std::stringstream inputBuffer;
+
+  for (auto pair : pairs)
+  {
+    inputBuffer << pair.first << "\n";
+    expected.push_back (pair.second);
+  }
+
+  inputBuffer.flush();
+
+  std::stringstream outputDummyBuffer;
 
   DummyEngine engine;
-  gtp::EngineFrontend<DummyEngine> frontend (inputBuffer, outputBuffer, engine);
+  gtp::EngineFrontend<DummyEngine> frontend (inputBuffer, outputDummyBuffer, engine);
   frontend.start();
 
   size_t expectedCommandCount = expected.size();
@@ -55,32 +67,5 @@ void testTypes (const std::string& input, std::vector<gtp::CommandType>& expecte
   }
 
   EXPECT_EQ(expectedCommandCount, parsedCommandCount);
-
-  //TODO : replace with cppunit or something alike
-  if (expected != engine.commands_)
-  {
-    std::cout << "noooo" << std::endl;
-    std::cout << std::endl; 
-  }
-  else
-  {
-    std::cout << "fuck yeah" << std::endl;
-  }
 }
-
-TEST(whatever1, whatever2)
-{
-  std::cout << "Hi there!" << std::endl;
-
-  std::vector<gtp::CommandType> cmds {
-     gtp::CommandType::quit,
-     gtp::CommandType::name,
-     gtp::CommandType::quit,
-     gtp::CommandType::fixed_handicap,
-     };
-
-  testTypes ("quit\nname\nquit\nfixed_handicap 4\n", cmds);
-}
-
-
 

@@ -174,6 +174,20 @@ inline std::istream& operator>>(std::istream& in, std::list<Vertex>& list)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Dumps a std::list<gtp::Vertex> to the given output stream
+//
+inline std::ostream& operator<< (std::ostream& out,
+                                 const std::list<Vertex>& vertices)
+{
+  for (auto vertex : vertices)
+  {
+    out << vertex;
+  }
+
+  return out;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Parses a gtp::Score from the given input stream
 //
 inline std::istream& operator>>(std::istream& in, Score& score)
@@ -236,6 +250,33 @@ inline std::ostream& operator<< (std::ostream& out, const CommandType& cmd)
   assert (it != command2stringMap.end()); // means the map is incomplete!
   out << it->second;
   return out;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Dumps a std::list<gtp::CommandType> to the given output stream
+//
+inline std::ostream& operator<< (std::ostream& out,
+                                 const std::list<CommandType>& cmdTypes)
+{
+  for (auto cmdType : cmdTypes)
+  {
+    out << cmdType;
+  }
+
+  return out;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Dumps a Command<?> to the given output stream
+//
+template<CommandType t, typename ReturnType, typename... Params>
+std::ostream& operator<< (std::ostream& out,
+                          const Command<t, ReturnType, Params...>& cmd)
+{
+  out << t;
+  return out;
+ //TODO: improve this 
 }
 
 ///////////////////////////////////////////////////////////////////////////////

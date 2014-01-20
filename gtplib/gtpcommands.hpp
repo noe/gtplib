@@ -26,7 +26,7 @@ enum class CommandType
   play,                   genmove,                undo,
   fixed_handicap,         place_free_handicap,    set_free_handicap,
   time_settings,          time_left,              final_score,
-  final_status_list
+  final_status_list,      error
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ using CmdTimeSettings = Command<CommandType::time_settings, void, int, int, int>
 using CmdTimeLeft = Command<CommandType::time_left, void, Color, Color, int, int>;
 using CmdFinalScore = Command<CommandType::final_score, void, Score>;
 using CmdFinalStatusList = Command<CommandType::final_status_list, std::list<Vertex>, StoneStatus>;
-using CmdError = Command<CommandType::name, void>;  // custom command to signal input error
+using CmdError = Command<CommandType::error, void>;  // custom command to signal input error
 
 }
 #endif
