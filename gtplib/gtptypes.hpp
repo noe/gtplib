@@ -12,10 +12,22 @@ namespace gtp
 enum class Color { white, black };
 
 // A position in the board
+enum class VertexOrPassType { VERTEX, PASS };
+
 struct Vertex { unsigned x,y; };
 
+struct VertexOrPass { 
+  VertexOrPassType type; Vertex vertex;
+  VertexOrPass() : type(VertexOrPassType::PASS), vertex{0, 0} {}
+  VertexOrPass(const Vertex& v) : type(VertexOrPassType::VERTEX), vertex(v) {}
+  VertexOrPass(unsigned x, unsigned y) : type(VertexOrPassType::VERTEX), vertex{x, y} {}
+  operator Vertex() { return vertex; }
+};
+
+VertexOrPass Pass() { return VertexOrPass{}; }
+
 // A player's move
-struct Move { Color color; Vertex vertex; };
+struct Move { Color color; VertexOrPass vertex; };
 
 // Result of a game
 struct Score { Color winner; unsigned advantage; };

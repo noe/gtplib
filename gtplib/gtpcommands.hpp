@@ -41,8 +41,8 @@ using CmdListCommands = Command<CommandType::list_commands, std::list<CommandTyp
 using CmdQuit = Command<CommandType::quit, void>;
 using CmdBoardSize = Command<CommandType::boardsize, void, int>;
 using CmdClearBoard = Command<CommandType::clear_board, void>;
-using CmdKomi = Command<CommandType::komi, void, int>;
-using CmdGenmove = Command<CommandType::genmove, Vertex, Color>;
+using CmdKomi = Command<CommandType::komi, void, float>;
+using CmdGenmove = Command<CommandType::genmove, VertexOrPass, Color>;
 using CmdUndo = Command<CommandType::undo, void>;
 using CmdPlay = Command<CommandType::play, void, Move>;
 using CmdFixedHandicap = Command<CommandType::fixed_handicap, std::list<Vertex>, int>;
@@ -52,6 +52,7 @@ using CmdTimeSettings = Command<CommandType::time_settings, void, int, int, int>
 using CmdTimeLeft = Command<CommandType::time_left, void, Color, Color, int, int>;
 using CmdFinalScore = Command<CommandType::final_score, void, Score>;
 using CmdFinalStatusList = Command<CommandType::final_status_list, std::list<Vertex>, StoneStatus>;
+using CmdError = Command<CommandType::name, void>;  // custom command to signal input error
 
 }
 #endif

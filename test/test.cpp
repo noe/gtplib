@@ -5,7 +5,36 @@
 
 #include <iostream>
 #include <sstream>
+#include <tuple>
 
+using namespace std;
+using namespace gtp;
+
+template<typename Command, typename ...Params>
+WhateverCommand Cmd(Params... params)
+{
+  Command c;
+  typedef decltype(c.params) Tuple;
+  return WhateverCommand(Command{Tuple(params...)});
+}
+
+std::map<string, WhateverCommand> buildPairs()
+{
+  std::map<string, WhateverCommand> result;
+  result["protocol_version"] = Cmd<CmdProtocolVersion>();
+  result["name"] = Cmd<CmdName>();
+  result["known_commands"] = Cmd<CmdKnownCommand>();
+  result["list_commands"] = Cmd<CmdListCommands>();
+  result["quit"] = Cmd<CmdQuit>();
+  result["boardsize 19"] = Cmd<CmdBoardSize>(19);
+  result["clear_board"] = Cmd<CmdClearBoard>();
+  result["komi 0.5"] = Cmd<CmdKomi>(0.5);
+  result["play b a12"] = Cmd<CmdPlay>(Move{Color::black, Vertex{0, 12}});
+  result["genmove w"] = Cmd<CmdGenmove>(Color::white);
+  result["fixed_handicap 4"] = Cmd<CmdFixedHandicap>(4);
+  result["version"] = Cmd<CmdVersion>();
+  return result;
+}
 
 void testTypes (const std::string& input, std::vector<gtp::CommandType>& expected)
 {

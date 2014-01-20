@@ -69,7 +69,7 @@ inline std::ostream& operator<< (std::ostream& out, const Vertex& v)
 {
   unsigned column = v.y;
   char row = 'A' + v.x;
-  out << row << column << std::endl;
+  out << row << column;
   return out;
 }
 
@@ -91,6 +91,43 @@ inline std::istream& operator>>(std::istream& in, Vertex& vertex)
   vertex.y = atoi(&v.c_str()[1]);
 
   return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Parses a gtp::VertexOrPass from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, VertexOrPass& vertexOrPass)
+{
+  std::string s;
+  in >> s;
+  if (s == "pass")
+  {
+    vertexOrPass = Pass();
+  }
+  else
+  {
+    vertexOrPass.type = VertexOrPassType::VERTEX;
+    std::stringstream buffer (s);
+    buffer >> vertexOrPass.vertex;
+  }
+
+  return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Dumps a gtp::VertexOrPassType to the given output stream
+//
+inline std::ostream& operator<< (std::ostream& out, const VertexOrPass& v)
+{
+  if (v.type == VertexOrPassType::PASS)
+  {
+    out << "pass";
+  }
+  else
+  {
+    out << v.vertex;
+  }
+  return out;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -182,9 +219,9 @@ inline std::ostream& operator<< (std::ostream& out, const Score& score)
 {
   bool draw = score.advantage == 0;
 
-  if (draw) out << "0" << std::endl;
-  else if (score.winner == Color::white) out << "W+" << score.advantage << std::endl;
-  else out << "B+" << score.advantage << std::endl;
+  if (draw) out << "0";
+  else if (score.winner == Color::white) out << "W+" << score.advantage;
+  else out << "B+" << score.advantage;
 
   return out;
 }
@@ -337,7 +374,7 @@ struct WriteHelper
 template<typename T>
 struct WriteHelper<std::list<T>>
 {
-  void writeResponse ( std::ostream& output, const std::list<T>& listOfElements)
+  void writeResponse (std::ostream& output, const std::list<T>& listOfElements)
   {
     WriteHelper<T> helper;
 

@@ -21,7 +21,7 @@ struct IEngine
   virtual void handle (const CmdBoardSize& cmd) = 0;
   virtual void handle (const CmdClearBoard& cmd) = 0;
   virtual void handle (const CmdKomi& cmd) = 0;
-  virtual Vertex handle (const CmdGenmove& cmd) = 0;
+  virtual VertexOrPass handle (const CmdGenmove& cmd) = 0;
   virtual void handle (const CmdPlay& cmd) = 0;
   virtual std::list<Vertex> handle (const CmdFixedHandicap& cmd) = 0;
   virtual std::list<Vertex> handle (const CmdPlaceFreeHandicap& cmd) = 0;
