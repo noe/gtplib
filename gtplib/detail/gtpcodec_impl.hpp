@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <map>
+#include <string>
 #include <istream>
 #include <ostream>
 #include <memory>
@@ -83,6 +84,51 @@ inline std::ostream& operator<< (std::ostream& out, const Move& move)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Parses a gtp::Move from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, Move& move)
+{
+  //TODO
+  return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Parses a gtp::Color from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, Color& color)
+{
+  //TODO
+  return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Parses a std::list<gtp::Vertex> from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, std::list<Vertex>& list)
+{
+  //TODO
+  return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Parses a gtp::Score from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, Score& score)
+{
+  //TODO
+  return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Parses a gtp::StoneStatus from the given input stream
+//
+inline std::istream& operator>>(std::istream& in, StoneStatus& stoneStatus)
+{
+  //TODO
+  return in;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Dumps a gtp::Score to the given output stream
 //
 inline std::ostream& operator<< (std::ostream& out, const Score& score)
@@ -99,7 +145,7 @@ inline std::ostream& operator<< (std::ostream& out, const Score& score)
 ///////////////////////////////////////////////////////////////////////////////
 // Dumps a gtp::CommandType to the given output stream
 //
-inline std::ostream& operator<< (std::ostream& out, CommandType cmd)
+inline std::ostream& operator<< (std::ostream& out, const CommandType& cmd)
 {
   static auto command2stringMap (mapCommandToString());
   auto it = command2stringMap.find (cmd);
@@ -125,13 +171,14 @@ template<size_t index>
 struct ParseAux
 {
   template<typename Tuple>
-  void operator()(std::istream& args, Tuple tuple)
+  void operator()(std::istream& args, Tuple& tuple)
   {
-    typename std::tuple_element<std::tuple_size<Tuple>::value - index, Tuple>::type t;
-    t << args;
+    enum aux { TUPLE_INDEX = std::tuple_size<Tuple>::value - index};
+    typename std::tuple_element<TUPLE_INDEX, Tuple>::type t;
+    args >> t;
     // TODO: control errors
 
-    std::get<index>(tuple) = std::move(t);
+    std::get<TUPLE_INDEX>(tuple) = std::move(t);
 
     // keep parsing
     ParseAux<index - 1> aux;
@@ -144,30 +191,21 @@ template<>
 struct ParseAux<0>
 {
   template<typename Tuple>
-  void operator()(std::istream& args, Tuple tuple)
+  void operator()(std::istream& args, Tuple& tuple)
   {
     // do nothing
   }
 };
-
-
-///////////////////////////////////////////////////////////////////////////////
-template<typename... Params>
-std::tuple<Params...> parseParams(std::istream& args)
-{
-  typedef typename std::tuple<Params...> Tuple;
-
-  Tuple result;
-  ParseAux<std::tuple_size<Tuple>::value> parser;
-  parser(args, result);
-  return result;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 template<typename Command>
 WhateverCommand processCmd(std::istream& args)
 {
   Command cmd;
+  typedef decltype(Command::params) Tuple;
+  ParseAux<std::tuple_size<Tuple>::value> parser;
+  parser(args, cmd.params);
+  cmd.params;
   return WhateverCommand (cmd);
 }
 

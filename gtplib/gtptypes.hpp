@@ -2,8 +2,8 @@
 // Distributed under New BSD License.
 // (see accompanying file COPYING)
 
-#ifndef __gtp_types_header_seen__
-#define __gtp_types_header_seen__
+#ifndef gtp_types_header_seen__
+#define gtp_types_header_seen__
 
 namespace gtp 
 {
@@ -31,7 +31,9 @@ template<CommandType t, typename ReturnType, typename... Params>
 struct Command
 {
   static const CommandType type = t;
+
   typedef ReturnType return_type;
+
   typename std::tuple<Params...> params;
 };
 
