@@ -45,6 +45,7 @@ inline std::map<std::string, CommandType> mapStringToCommand ()
   result.insert(std::make_pair("time_left", CommandType::time_left));
   result.insert(std::make_pair("final_score", CommandType::final_score));
   result.insert(std::make_pair("final_status_list", CommandType::final_status_list));
+  result.insert(std::make_pair("<ERROR>", CommandType::error));
 
   return result;
 }
@@ -421,9 +422,6 @@ ProtocolCodec::ProtocolCodec (std::istream& input, std::ostream& output)
 //
 WhateverCommand ProtocolCodec::readCommand ()
 {
-  CmdQuit quit;
-  WhateverCommand nullCmd (quit);
-
   std::string line;
   bool keepReading = true;
 
@@ -433,7 +431,7 @@ WhateverCommand ProtocolCodec::readCommand ()
 
     bool failed = !std::getline(input_, line);
 
-    if (failed) return WhateverCommand(CmdError{}); 
+    if (failed) break; 
 
     if (line.empty())
     {
@@ -447,11 +445,11 @@ WhateverCommand ProtocolCodec::readCommand ()
     }
     catch (std::exception& ex)
     {
-      return WhateverCommand(CmdError{}); 
+      break;
     }
   }
 
-  return nullCmd;
+  return WhateverCommand(CmdError{});
 } 
 
 ///////////////////////////////////////////////////////////////////////////////

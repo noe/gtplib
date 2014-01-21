@@ -47,18 +47,26 @@ class CommandVisitor : public boost::static_visitor<void>
   public:
 
     CommandVisitor (Engine& engine, ProtocolCodec& codec)
-      : engine_ (engine), codec_ (codec) { /* do nothing */ }
+      : engine_ (engine), codec_ (codec), stop_(false) { /* do nothing */ }
 
     template<CommandType t, typename ReturnType, typename... Params>
     void operator()(const Command<t, ReturnType, Params...>& cmd) const
     {
+      if (t == CommandType::quit || t == CommandType::error) stop_ = true;
+ 
       Helper<ReturnType> helper;
       helper.handle (engine_, codec_, cmd);
+    }
+
+    bool stop()
+    {
+      return stop_;
     }
 
   private:
     Engine& engine_;
     ProtocolCodec& codec_;
+    mutable bool stop_;
 };
 
 template<typename Engine>
@@ -76,13 +84,13 @@ void EngineFrontend<Engine>::start ()
 {
   CommandVisitor<Engine> visitor (engine_, codec_);
 
-  while (!stop_)
+  while (!stop_ && !visitor.stop())
   {
     try
     {
       WhateverCommand cmd = codec_.readCommand ();
 //FIXME: without this like everything blocks
-      boost::apply_visitor (PrintCmd(), cmd);
+//      boost::apply_visitor (PrintCmd(), cmd);
       boost::apply_visitor (visitor, cmd);
     }
     catch (...) //FIXME
