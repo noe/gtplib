@@ -23,7 +23,7 @@ std::map<string, WhateverCommand> buildPairs()
   std::map<string, WhateverCommand> result;
   result["protocol_version"] = Cmd<CmdProtocolVersion>();
   result["name"] = Cmd<CmdName>();
-  result["known_commands"] = Cmd<CmdKnownCommand>();
+  result["known_command"] = Cmd<CmdKnownCommand>();
   result["list_commands"] = Cmd<CmdListCommands>();
   result["quit"] = Cmd<CmdQuit>();
   result["boardsize 19"] = Cmd<CmdBoardSize>(19);

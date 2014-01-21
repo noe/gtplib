@@ -1,5 +1,5 @@
 CXX=g++-4.7
-CXXFLAGS=-std=c++0x -I.. -I.
+CXXFLAGS=-std=c++0x -I.. -I. -g
 GTEST_LIBS=/usr/local/lib/libgtest.a /usr/local/lib/libgtest_main.a
 
 all: test

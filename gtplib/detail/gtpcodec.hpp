@@ -33,7 +33,8 @@ using WhateverCommand = boost::variant<
   CmdTimeSettings, 
   CmdTimeLeft, 
   CmdFinalScore, 
-  CmdFinalStatusList>;
+  CmdFinalStatusList,
+  CmdError>;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Class to read GTP commands from an input stream and to write

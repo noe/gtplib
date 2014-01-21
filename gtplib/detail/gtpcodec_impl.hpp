@@ -13,6 +13,7 @@
 #include <memory>
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
+#include <boost/mpl/for_each.hpp>
 
 namespace gtp
 {
@@ -60,6 +61,34 @@ inline std::map<CommandType, std::string> mapCommandToString ()
     result.insert(std::make_pair(entry.second, entry.first));
   }
   return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Finds out the matching gtp::CommandType for the given stringified command.
+//
+inline CommandType string2command (const std::string& command)
+{
+  static auto string2commandMap (mapStringToCommand());
+  auto it = string2commandMap.find (command);
+  if (it == string2commandMap.end())
+  {
+    throw std::logic_error("No command for " + command);
+  }
+  return it->second;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Finds out the matching string for the given CommandType.
+//
+inline std::string command2string (CommandType type)
+{
+  static auto commandMap (mapCommandToString());
+  auto it = commandMap.find (type);
+  if (it == commandMap.end())
+  {
+    throw std::logic_error("No command string associated");
+  }
+  return it->second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,10 +274,7 @@ inline std::ostream& operator<< (std::ostream& out, const Score& score)
 //
 inline std::ostream& operator<< (std::ostream& out, const CommandType& cmd)
 {
-  static auto command2stringMap (mapCommandToString());
-  auto it = command2stringMap.find (cmd);
-  assert (it != command2stringMap.end()); // means the map is incomplete!
-  out << it->second;
+  out << command2string(cmd);
   return out;
 }
 
@@ -258,11 +284,7 @@ inline std::ostream& operator<< (std::ostream& out, const CommandType& cmd)
 inline std::ostream& operator<< (std::ostream& out,
                                  const std::list<CommandType>& cmdTypes)
 {
-  for (auto cmdType : cmdTypes)
-  {
-    out << cmdType;
-  }
-
+  for (auto cmdType : cmdTypes) out << cmdType;
   return out;
 }
 
@@ -277,18 +299,6 @@ std::ostream& operator<< (std::ostream& out,
   out << t;
   return out;
  //TODO: improve this 
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Finds out the matching gtp::CommandType for the given stringified command.
-//
-inline CommandType string2command (const std::string& command)
-                            throw (std::exception)
-{
-  static auto string2commandMap (mapStringToCommand());
-  auto it = string2commandMap.find (command);
-  if (it == string2commandMap.end()) throw std::exception();
-  return it->second;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -324,16 +334,25 @@ struct ParseAux<0>
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-template<typename Command>
-WhateverCommand processCmd(std::istream& args)
+struct ProcessCommand
 {
-  Command cmd;
-  typedef decltype(Command::params) Tuple;
-  ParseAux<std::tuple_size<Tuple>::value> parser;
-  parser(args, cmd.params);
-  cmd.params;
-  return WhateverCommand (cmd);
-}
+  CommandType commandType;;
+  std::istream& args;
+  WhateverCommand& result;
+
+  template<typename Command>
+  void operator()(Command)
+  {
+    if (commandType != Command::type) return;
+     
+    Command cmd;
+    typedef decltype(Command::params) Tuple;
+    ParseAux<std::tuple_size<Tuple>::value> parser;
+    parser(args, cmd.params);
+    cmd.params;
+    result = WhateverCommand (cmd);
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Actual method for parsing a GTP command.
@@ -348,52 +367,12 @@ inline WhateverCommand commandFromLine (const std::string& line)
  
   CommandType type = string2command (command);
 
-  switch (type)
-  {
-    case CommandType::protocol_version:
-      return processCmd<CmdProtocolVersion>(buffer);
-    case CommandType::name:
-      return processCmd<CmdName>(buffer);
-    case CommandType::version:
-      return processCmd<CmdVersion>(buffer);
-    case CommandType::known_command:
-      return processCmd<CmdKnownCommand>(buffer);
-    case CommandType::list_commands:
-      return processCmd<CmdListCommands>(buffer);
-    case CommandType::quit:
-      return processCmd<CmdQuit>(buffer);
-    case CommandType::boardsize:
-      return processCmd<CmdBoardSize>(buffer);
-    case CommandType::clear_board:
-      return processCmd<CmdClearBoard>(buffer);
-    case CommandType::komi:
-      return processCmd<CmdKomi>(buffer);
-    case CommandType::play:
-      return processCmd<CmdPlay>(buffer);
-    case CommandType::genmove:
-      return processCmd<CmdGenmove>(buffer);
-    case CommandType::undo:
-      return processCmd<CmdUndo>(buffer);
-    case CommandType::fixed_handicap:
-      return processCmd<CmdFixedHandicap>(buffer);
-    case CommandType::place_free_handicap:
-      return processCmd<CmdPlaceFreeHandicap>(buffer);
-    case CommandType::set_free_handicap:
-      return processCmd<CmdSetFreeHandicap>(buffer);
-    case CommandType::time_settings:
-      return processCmd<CmdTimeSettings>(buffer);
-    case CommandType::time_left:
-      return processCmd<CmdTimeLeft>(buffer);
-    case CommandType::final_score:
-      return processCmd<CmdFinalScore>(buffer);
-    case CommandType::final_status_list:
-      return processCmd<CmdFinalStatusList>(buffer);
-
-    default: (assert (false)); // this should never happen
-  }
- 
-  CmdQuit quit;
-  return WhateverCommand (quit);
+  CmdError error;
+  WhateverCommand result(error);
+  ProcessCommand processor{type, buffer, result};
+  
+  boost::mpl::for_each<WhateverCommand::types>(processor);
+  return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -454,7 +433,7 @@ WhateverCommand ProtocolCodec::readCommand ()
 
     bool failed = !std::getline(input_, line);
 
-    if (failed) throw "end"; //FIXME
+    if (failed) return WhateverCommand(CmdError{}); 
 
     if (line.empty())
     {
@@ -468,7 +447,7 @@ WhateverCommand ProtocolCodec::readCommand ()
     }
     catch (std::exception& ex)
     {
-      continue;  // malformed command
+      return WhateverCommand(CmdError{}); 
     }
   }
 

@@ -32,6 +32,14 @@ struct Helper <void>
   }
 };
 
+struct PrintCmd : public boost::static_visitor<void>
+{
+  template<typename Command>
+  void operator()(const Command& cmd) const
+  {
+    std::cout << "COMMAND: " << cmd << std::endl;
+  }
+};
 
 template<typename Engine>
 class CommandVisitor : public boost::static_visitor<void>
@@ -73,12 +81,13 @@ void EngineFrontend<Engine>::start ()
     try
     {
       WhateverCommand cmd = codec_.readCommand ();
+//FIXME: without this like everything blocks
+      boost::apply_visitor (PrintCmd(), cmd);
       boost::apply_visitor (visitor, cmd);
     }
     catch (...) //FIXME
     {
       stop_ = true;
-      continue;
     }
   }
 }
