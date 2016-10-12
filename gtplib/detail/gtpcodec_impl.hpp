@@ -352,7 +352,6 @@ struct ProcessCommand
     typedef decltype(std::declval<Command>().params) Tuple;
     ParseAux<std::tuple_size<Tuple>::value> parser;
     parser(args, cmd.params);
-    cmd.params;
     result = WhateverCommand (cmd);
   }
 };
