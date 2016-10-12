@@ -13,6 +13,7 @@
 #include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 #include <boost/algorithm/string.hpp>
 #include <boost/mpl/for_each.hpp>
 
@@ -348,7 +349,7 @@ struct ProcessCommand
     if (commandType != Command::type) return;
      
     Command cmd;
-    typedef decltype(Command::params) Tuple;
+    typedef decltype(std::declval<Command>().params) Tuple;
     ParseAux<std::tuple_size<Tuple>::value> parser;
     parser(args, cmd.params);
     cmd.params;
