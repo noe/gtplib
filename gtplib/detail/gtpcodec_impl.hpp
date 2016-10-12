@@ -12,6 +12,7 @@
 #include <ostream>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <boost/algorithm/string.hpp>
 #include <boost/mpl/for_each.hpp>
 
