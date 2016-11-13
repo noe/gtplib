@@ -403,7 +403,7 @@ struct WriteHelper<std::list<T>>
     for (const T& t : listOfElements)
     {
       helper.writeResponse(output, t);
-      output << " ";
+      output << std::endl;
     }
   }
 }; 
