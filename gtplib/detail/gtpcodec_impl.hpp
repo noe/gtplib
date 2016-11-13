@@ -460,8 +460,9 @@ WhateverCommand ProtocolCodec::readCommand ()
 template<typename T> void ProtocolCodec::writeResponse (const T& t)
 {
   WriteHelper<T> helper;
+  output_ << '=';
   helper.writeResponse (output_, t);
-  output_ << std::endl;
+  output_ << std::endl << std::endl;
 }
 
 }
