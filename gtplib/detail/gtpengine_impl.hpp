@@ -29,6 +29,7 @@ struct Helper <void>
   void handle(Engine& engine, ProtocolCodec& codec, const Cmd& cmd)
   {
     engine.handle (cmd);
+    codec.writeResponse("");
   }
 };
 
