@@ -136,7 +136,8 @@ inline std::istream& operator>>(std::istream& in, VertexOrPass& vertexOrPass)
 {
   std::string s;
   in >> s;
-  if (s == "pass")
+  boost::to_upper(s);
+  if (s == "PASS")
   {
     vertexOrPass = Pass();
   }
