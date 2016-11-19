@@ -96,11 +96,12 @@ inline std::string command2string (CommandType type)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dumps a gtp::Vertex to the given output stream
+// (1~19, 1~19)
 //
 inline std::ostream& operator<< (std::ostream& out, const Vertex& v)
 {
   unsigned column = v.y;
-  char row = 'A' + v.x;
+  char row = 'A' + v.x - 1;
   if (row >= 'I')
       ++row; // Special treatment of row. Row is labeled A~H J~T
   out << row << column;
@@ -109,6 +110,7 @@ inline std::ostream& operator<< (std::ostream& out, const Vertex& v)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parses a gtp::Vertex from the given input stream
+// (1~19, 1~19)
 //
 inline std::istream& operator>>(std::istream& in, Vertex& vertex)
 {
@@ -121,7 +123,7 @@ inline std::istream& operator>>(std::istream& in, Vertex& vertex)
     return in;
   }
 
-  vertex.x = v.at(0) - 'A';
+  vertex.x = v.at(0) - 'A' + 1;
   if (v.at(0) > 'I')
       --vertex.x;
   vertex.y = atoi(&v.c_str()[1]);
