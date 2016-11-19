@@ -12,6 +12,8 @@
 #include <ostream>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
+#include <utility>
 #include <boost/algorithm/string.hpp>
 #include <boost/mpl/for_each.hpp>
 
@@ -94,17 +96,21 @@ inline std::string command2string (CommandType type)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dumps a gtp::Vertex to the given output stream
+// (1~19, 1~19)
 //
 inline std::ostream& operator<< (std::ostream& out, const Vertex& v)
 {
   unsigned column = v.y;
-  char row = 'A' + v.x;
+  char row = 'A' + v.x - 1;
+  if (row >= 'I')
+      ++row; // Special treatment of row. Row is labeled A~H J~T
   out << row << column;
   return out;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parses a gtp::Vertex from the given input stream
+// (1~19, 1~19)
 //
 inline std::istream& operator>>(std::istream& in, Vertex& vertex)
 {
@@ -117,7 +123,9 @@ inline std::istream& operator>>(std::istream& in, Vertex& vertex)
     return in;
   }
 
-  vertex.x = v.at(0) - 'A';
+  vertex.x = v.at(0) - 'A' + 1;
+  if (v.at(0) > 'I')
+      --vertex.x;
   vertex.y = atoi(&v.c_str()[1]);
 
   return in;
@@ -130,7 +138,8 @@ inline std::istream& operator>>(std::istream& in, VertexOrPass& vertexOrPass)
 {
   std::string s;
   in >> s;
-  if (s == "pass")
+  boost::to_upper(s);
+  if (s == "PASS")
   {
     vertexOrPass = Pass();
   }
@@ -347,10 +356,9 @@ struct ProcessCommand
     if (commandType != Command::type) return;
      
     Command cmd;
-    typedef decltype(Command::params) Tuple;
+    typedef decltype(std::declval<Command>().params) Tuple;
     ParseAux<std::tuple_size<Tuple>::value> parser;
     parser(args, cmd.params);
-    cmd.params;
     result = WhateverCommand (cmd);
   }
 };
@@ -402,7 +410,7 @@ struct WriteHelper<std::list<T>>
     for (const T& t : listOfElements)
     {
       helper.writeResponse(output, t);
-      output << " ";
+      output << std::endl;
     }
   }
 }; 
@@ -459,8 +467,9 @@ WhateverCommand ProtocolCodec::readCommand ()
 template<typename T> void ProtocolCodec::writeResponse (const T& t)
 {
   WriteHelper<T> helper;
+  output_ << "= ";
   helper.writeResponse (output_, t);
-  output_ << std::endl;
+  output_ << std::endl << std::endl;
 }
 
 }

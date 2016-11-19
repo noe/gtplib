@@ -24,7 +24,7 @@ struct VertexOrPass {
   operator Vertex() { return vertex; }
 };
 
-VertexOrPass Pass() { return VertexOrPass{}; }
+static inline VertexOrPass Pass() { return VertexOrPass{}; }
 
 // A player's move
 struct Move { Color color; VertexOrPass vertex; };
@@ -51,32 +51,32 @@ struct Command
 
 // equality operator for commands
 template<CommandType t, typename ReturnType, typename... Params>
-bool operator==(const Command<t, ReturnType, Params...>& c1,
+static inline bool operator==(const Command<t, ReturnType, Params...>& c1,
                 const Command<t, ReturnType, Params...>& c2)
 {
   return c1.params == c2.params;
 }
 
 // equality operator for Vertex
-bool operator==(const Vertex& v1, const Vertex& v2)
+static inline bool operator==(const Vertex& v1, const Vertex& v2)
 {
   return v1.x == v2.x && v1.y == v2.y;
 }
 
 // equality operator for VertexOrPass
-bool operator==(const VertexOrPass& v1, const VertexOrPass& v2)
+static inline bool operator==(const VertexOrPass& v1, const VertexOrPass& v2)
 {
   return v1.type == v2.type && v1.vertex == v2.vertex;
 }
 
 // equality operator for Move
-bool operator==(const Move& m1, const Move& m2)
+static inline bool operator==(const Move& m1, const Move& m2)
 {
   return m1.color == m2.color;
 }
 
 // equality operator for Score
-bool operator==(const Score& s1, const Score& s2)
+static inline bool operator==(const Score& s1, const Score& s2)
 {
   return (s1.advantage == 0 && s2.advantage == 0)
          || (s1.advantage == s2.advantage && s1.winner == s2.winner);
