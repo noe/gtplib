@@ -101,6 +101,8 @@ inline std::ostream& operator<< (std::ostream& out, const Vertex& v)
 {
   unsigned column = v.y;
   char row = 'A' + v.x;
+  if (row >= 'I')
+      ++row; // Special treatment of row. Row is labeled A~H J~T
   out << row << column;
   return out;
 }
@@ -120,6 +122,8 @@ inline std::istream& operator>>(std::istream& in, Vertex& vertex)
   }
 
   vertex.x = v.at(0) - 'A';
+  if (v.at(0) > 'I')
+      --vertex.x;
   vertex.y = atoi(&v.c_str()[1]);
 
   return in;
